@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>房产智能选房系统</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- ===== 顶栏 ===== -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-logo">房</div>
+    <div>
+      <div class="brand-name">房产智能选房系统</div>
+      <div class="brand-sub" id="statLine">数据加载中…</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="browse">楼盘库</button>
+    <button class="nav-btn" data-view="compare">对比评估</button>
+    <button class="nav-btn" data-view="match">智能匹配</button>
+  </nav>
+  <div class="top-right">
+    <button class="ghost-btn" id="openSheet">筛选</button>
+    <span class="count-badge" id="resultCount">0</span>
+  </div>
+</header>
+
+<!-- ===== 页面1: 楼盘库 ===== -->
+<section id="view-browse" class="view active">
+  <div class="toolbar">
+    <input id="searchInput" class="search-input" type="text" placeholder="搜索楼盘 / 区域 / 地铁，如：天通苑、河西、13号线">
+    <select id="sortSelect" class="select">
+      <option value="smart">智能排序</option>
+      <option value="priceAsc">总价从低到高</option>
+      <option value="priceDesc">总价从高到低</option>
+      <option value="areaDesc">面积从大到小</option>
+      <option value="scoreDesc">综合评分</option>
+    </select>
+  </div>
+  <div class="price-rail" id="priceRail"><!-- 价格段快捷标签 --></div>
+  <div id="browseBody" class="card-grid"></div>
+  <div class="pager">
+    <button class="ghost-btn" id="prevPage">上一页</button>
+    <span id="pageInfo">1 / 1</span>
+    <button class="ghost-btn" id="nextPage">下一页</button>
+  </div>
+</section>
+
+<!-- ===== 页面2: 对比评估 ===== -->
+<section id="view-compare" class="view">
+  <div class="cmp-head">
+    <input id="cmpSearch" class="search-input" type="text" placeholder="搜索并添加对比楼盘（最多4个）">
+    <button class="ghost-btn" id="cmpClear">清空</button>
+  </div>
+  <div id="cmpList" class="cmp-slots"><!-- 对比槽位 --></div>
+  <div class="cmp-grid">
+    <div class="panel">
+      <h3 class="panel-title">十二维综合对比雷达</h3>
+      <canvas id="cmpRadar" width="560" height="420"></canvas>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title">关键维度对比表</h3>
+      <div class="table-wrap">
+        <table id="cmpTable" class="cmp-table"></table>
+      </div>
+    </div>
+  </div>
+  <div class="ai-bar">
+    <input id="cmpAiKey" class="ai-key" type="password" placeholder="DeepSeek API Key（可选）">
+    <button class="primary-btn" id="genCmpReport">生成 AI 对比报告</button>
+    <div id="cmpReport" class="ai-report"></div>
+  </div>
+</section>
+
+<!-- ===== 页面3: 智能匹配 ===== -->
+<section id="view-match" class="view">
+  <div class="match-layout">
+    <div class="panel match-left">
+      <h3 class="panel-title">我的需求</h3>
+      <label class="field-label">预算（万元）<span id="budgetVal"></span></label>
+      <input id="budgetSlider" type="range" min="60" max="20000" step="10" value="500">
+      <label class="field-label">目标城市</label>
+      <select id="matchCity" class="select"></select>
+      <label class="field-label">置业模式</label>
+      <div class="mode-row">
+        <button class="mode-btn active" data-mode="self">自住</button>
+        <button class="mode-btn" data-mode="invest">投资</button>
+      </div>
+      <label class="field-label">风格偏好（可多选）</label>
+      <div id="matchStyles" class="chip-wrap"></div>
+      <label class="field-label">房型偏好</label>
+      <select id="matchProduct" class="select">
+        <option value="">不限</option>
+      </select>
+      <label class="field-label">楼层偏好</label>
+      <select id="matchFloor" class="select">
+        <option value="">不限</option>
+        <option value="low">低区</option>
+        <option value="mid">中区</option>
+        <option value="high">高区</option>
+        <option value="top">顶楼</option>
+      </select>
+      <label class="field-label">景观偏好</label>
+      <select id="matchView" class="select">
+        <option value="">不限</option>
+        <option value="none">无景观</option>
+        <option value="part">普通景观</option>
+        <option value="full">一线景观</option>
+      </select>
+      <label class="field-label">权重调节</label>
+      <div class="w-sliders">
+        <div><span>价格贴合</span><input type="range" data-w="price" min="0" max="50" value="30"></div>
+        <div><span>地段</span><input type="range" data-w="loc" min="0" max="50" value="28"></div>
+        <div><span>交通</span><input type="range" data-w="trans" min="0" max="50" value="20"></div>
+        <div><span>物业</span><input type="range" data-w="prop" min="0" max="50" value="18"></div>
+        <div><span>房型</span><input type="range" data-w="type" min="0" max="50" value="20"></div>
+        <div><span>面积</span><input type="range" data-w="area" min="0" max="50" value="15"></div>
+        <div><span>房龄</span><input type="range" data-w="age" min="0" max="50" value="15"></div>
+        <div><span>学区</span><input type="range" data-w="school" min="0" max="50" value="18"></div>
+        <div><span>生活配套</span><input type="range" data-w="life" min="0" max="50" value="15"></div>
+        <div><span>风格</span><input type="range" data-w="style" min="0" max="50" value="10"></div>
+        <div><span>性价比</span><input type="range" data-w="value" min="0" max="50" value="15"></div>
+      </div>
+      <div class="match-card">
+        <h3>偏好画像 <small>滑块自动调整推荐权重，越靠右越重视</small></h3>
+        <div class="pref-grid">
+          <div><span>通勤重要度</span><input type="range" id="prefCommute" min="0" max="100" value="50"></div>
+          <div><span>学区需求</span><input type="range" id="prefSchool" min="0" max="100" value="30"></div>
+          <div><span>景观偏好</span><input type="range" id="prefView" min="0" max="100" value="40"></div>
+          <div><span>新盘偏好</span><input type="range" id="prefFresh" min="0" max="100" value="40"></div>
+        </div>
+      </div>
+      <button class="primary-btn big" id="doMatch">智能匹配</button>
+    </div>
+    <div class="match-right">
+      <h3 class="panel-title">匹配结果</h3>
+      <div class="match-meta" id="matchMeta"></div>
+      <div id="matchResult" class="match-list"></div>
+      <div class="ai-bar">
+        <input id="matchAiKey" class="ai-key" type="password" placeholder="DeepSeek API Key（可选）">
+        <button class="primary-btn" id="matchAiBtn">生成 AI 置业解读</button>
+        <div id="matchReport" class="ai-report"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 筛选抽屉 ===== -->
+<div class="drawer-mask" id="sheetMask"></div>
+<aside class="drawer" id="sheet">
+  <h3 class="panel-title">筛选条件</h3>
+  <div class="sheet-block">
+    <div class="field-label">城市</div>
+    <div id="fCity" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">价格段</div>
+    <div id="fPrice" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">房型</div>
+    <div id="fProduct" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">风格</div>
+    <div id="fStyle" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">地段层级</div>
+    <div id="fLoc" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">物业费</div>
+    <div id="fFee" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">景观</div>
+    <div id="fViewTier" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-block">
+    <div class="field-label">楼龄</div>
+    <div id="fAge" class="chip-wrap"></div>
+  </div>
+  <div class="sheet-actions">
+    <button class="ghost-btn" id="resetFilter">重置</button>
+    <button class="primary-btn" id="applyFilter">应用</button>
+  </div>
+</aside>
+
+<!-- ===== 详情弹层 ===== -->
+<div class="detail-mask" id="detailMask"></div>
+<div class="detail" id="detail">
+  <button class="detail-close" id="detailClose">×</button>
+  <div id="detailBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="data-cities-part1.js"></script>
+<script src="data-cities-part2.js"></script>
+<script src="data.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>
