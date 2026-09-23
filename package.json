@@ -1,0 +1,50 @@
+{
+  "name": "property-selector",
+  "version": "1.0.0",
+  "description": "房产智能选房系统 - 覆盖全价格段的智能选房工具",
+  "main": "main.js",
+  "author": "AI",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --win portable",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ai.property-selector",
+    "productName": "房产智能选房系统",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "data-cities-part1.js",
+      "data-cities-part2.js",
+      "data.js",
+      "index.html",
+      "style.css",
+      "renderer.js",
+      "icon.ico",
+      "icon.png"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "房产智能选房系统"
+    }
+  }
+}
